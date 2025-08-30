@@ -28,4 +28,8 @@ declare global {
   interface Window {
     Telegram?: TelegramNamespace;
   }
+
+  interface Window {
+    Telegram?: { WebApp?: TelegramWebApp };
+  }
 }

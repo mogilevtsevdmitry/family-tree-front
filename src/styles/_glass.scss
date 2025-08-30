@@ -1,0 +1,74 @@
+/* Компонент «Liquid Glass». Директива будет добавлять класс .liquid-glass на хост
+   и подставлять параметры через CSS-переменные: --lg-blur, --lg-saturate, --lg-border-alpha, --lg-animate */
+
+.liquid-glass {
+  position: relative;
+  border-radius: clamp(var(--radius), 2.5vw, var(--radius-xl));
+  padding: 18px;
+  background: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--bg-elev) 70%, transparent),
+        color-mix(in oklab, var(--bg-elev) 20%, transparent)
+      )
+      0 0 / cover,
+    var(--glass-fill);
+  border: 1px solid
+    color-mix(in oklab, var(--glass-stroke) calc(100% * var(--lg-border-alpha)), transparent);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-saturate));
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* «жидкий» блик */
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: var(--sheen);
+  opacity: calc(var(--lg-animate) * var(--lg-highlight-opacity));
+  filter: blur(24px);
+  animation: sheen-rotate 18s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+@keyframes sheen-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* градиентная окантовка 1px */
+.liquid-glass::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.65),
+    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.1)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* размеры-предустановки (на всякий) */
+.lg-compact {
+  padding: 12px;
+}
+.lg-roomy {
+  padding: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass::before {
+    animation: none;
+  }
+}

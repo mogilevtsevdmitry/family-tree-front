@@ -12,6 +12,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   provideTranslateHttpLoader,
 } from '@ngx-translate/http-loader';
+import { provideHttpClient } from '@angular/common/http';
 
 // ---- i18n settings ----
 export const SUPPORTED_LANGS = ['en', 'ru'] as const;
@@ -40,7 +41,7 @@ function initTranslate() {
   const translate = inject(TranslateService);
 
   translate.addLangs([...SUPPORTED_LANGS]);
-  translate.setDefaultLang(DEFAULT_LANG);
+  translate.setFallbackLang(DEFAULT_LANG);
 
   const initial = resolveInitialLang();
   translate.use(initial).subscribe({
@@ -56,6 +57,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    provideHttpClient(),
 
     importProvidersFrom(
       TranslateModule.forRoot({
