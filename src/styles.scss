@@ -1,2 +1,12 @@
 @use 'styles/tokens';
 @use 'styles/glass';
+
+/* когда открыт бургер — ширина окна стабильна, ничего не «едет» */
+:root.menu-open {
+  overflow: hidden;
+  padding-right: var(--sbw, 0px);
+}
+body.menu-open {
+  overflow: hidden;
+  padding-right: var(--sbw, 0px);
+}

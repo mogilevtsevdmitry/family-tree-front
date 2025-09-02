@@ -6,13 +6,18 @@ import { HeaderComponent } from './layout/header/header.component';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent],
+  styles: [
+    `
+      main.page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+    `,
+  ],
   template: `
     <app-header />
-
     <main class="page">
-      <div class="lg-card lg-shimmer" style="height:120px">
-        <p>Какой-то текст</p>
-      </div>
       <router-outlet />
     </main>
   `,
