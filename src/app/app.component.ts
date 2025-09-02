@@ -1,68 +1,20 @@
-// src/app/app.component.ts
-import { Component, OnInit, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { ThemeService } from './shared/theme/theme.service';
-import { LiquidGlassDirective } from './shared/theme/liquid-glass.directive';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { HeaderComponent } from './layout/header/header.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [TranslateModule, LiquidGlassDirective],
+  imports: [RouterOutlet, HeaderComponent],
   template: `
-    <div class="app-shell">
-      <header
-        class="app-header"
-        [appLiquidGlass]="theme.liquid()"
-        [lgBlur]="22"
-        [lgSaturation]="1.5"
-        [lgBorder]="1"
-        [lgAnimate]="true"
-      >
-        <div>🌳 <strong>Family Tree</strong></div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-ghost" (click)="onToggleTheme()">
-            {{ theme.theme() === 'dark' ? 'Light' : 'Dark' }} theme
-          </button>
-          <button class="btn btn-primary" (click)="onToggleLiquid()">
-            {{ theme.liquid() ? 'Solid UI' : 'Liquid Glass' }}
-          </button>
-        </div>
-      </header>
+    <app-header />
 
-      <main class="app-main">
-        <!-- liquid карточка (подхватит глобальный флаг) -->
-        <section
-          [appLiquidGlass]="theme.liquid()"
-          class="lg-roomy"
-          [lgBlur]="18"
-          [lgSaturation]="1.4"
-          [lgBorder]="1"
-          [lgAnimate]="true"
-        >
-          <h2 style="margin:0 0 8px 0;">Liquid Glass Card</h2>
-          <p class="u-muted">Frosted translucency with animated sheen.</p>
-        </section>
-
-        <!-- обычная карточка -->
-        <section class="card">
-          <h2 style="margin:0 0 8px 0;">Regular Card</h2>
-          <p class="u-muted">Solid elevated surface.</p>
-        </section>
-      </main>
-    </div>
+    <main class="page">
+      <div class="lg-card lg-shimmer" style="height:120px">
+        <p>Какой-то текст</p>
+      </div>
+      <router-outlet />
+    </main>
   `,
 })
-export class AppComponent implements OnInit {
-  readonly theme = inject(ThemeService);
-
-  ngOnInit(): void {
-    this.theme.init();
-  }
-
-  onToggleTheme(): void {
-    this.theme.toggleTheme();
-  }
-  onToggleLiquid(): void {
-    this.theme.toggleLiquid();
-  }
-}
+export class AppComponent {}

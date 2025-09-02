@@ -1,173 +1,133 @@
-/* Токены + темы (light/dark) */
+/* Liquid Glass — системные токены (без зависимостей) */
+
 :root {
-  /* размеры/радиусы/тени */
-  --radius-xs: 8px;
-  --radius: 14px;
-  --radius-xl: 24px;
-  --shadow-1: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --shadow-2: 0 8px 30px rgba(0, 0, 0, 0.1);
+  /* Базовые цвета */
+  --bg: #0b0c10;
+  --fg: #e6e6e6;
+  --surface: #111318;
 
-  /* типографика */
-  --font-sans: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, 'Noto Sans',
-    'Apple Color Emoji', 'Segoe UI Emoji';
-  --fs-12: 12px;
-  --fs-14: 14px;
-  --fs-16: 16px;
-  --fs-20: 20px;
-  --fs-28: 28px;
+  /* Акцент в RGB (для смешивания в градиентах/подсветке) */
+  --lg-tint: 255, 153, 0;
 
-  /* переходы */
-  --tr-fast: 160ms ease;
-  --tr-slow: 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Пресеты blur (удобно для разных слоёв) */
+  --lg-blur-xs: 6px;
+  --lg-blur-sm: 10px;
+  --lg-blur-md: 14px;
+  --lg-blur-lg: 20px;
 
-  /* дефолты для liquid (могут переопределяться директивой) */
-  --lg-blur: 18px;
-  --lg-saturate: 1.4;
-  --lg-highlight-opacity: 0.35; /* интенсивность блика */
-  --lg-border-alpha: 1; /* 0..1 прозрачность рамки */
-  --lg-animate: 1; /* 1 — анимировать sheen, 0 — нет */
-}
+  /* Активные значения (меняются темой/сервисом) */
+  --lg-blur: var(--lg-blur-md);
+  --lg-saturation: 1.6;
+  --lg-opacity: 0.14;
+  --lg-border: 0.6;
+  --lg-highlight: 0.35;
+  --lg-shadow: 0.24;
+  --lg-radius: 16px;
+  --lg-noise-alpha: 0.06;
+  --lg-shimmer-speed: 18s;
 
-/* LIGHT */
-:root,
-:root[data-theme='light'] {
-  color-scheme: light;
-  --bg: #f6f7fb;
-  --bg-elev: #ffffff;
-  --text: #0e1116;
-  --text-muted: #5a6a85;
-  --primary: #3a7afe;
-  --primary-ink: #ffffff;
-  --border: rgba(15, 23, 42, 0.08);
+  /* Дисторсия (через SVG-фильтры; значение — имя фильтра) */
+  --lg-distortion: none; /* none | glass-distortion | glass-distortion-light | glass-distortion-strong */
 
-  --glass-fill: rgba(255, 255, 255, 0.55);
-  --glass-stroke: rgba(255, 255, 255, 0.7);
-  --glass-shadow: 0 10px 30px rgba(31, 41, 55, 0.1);
-  --glass-highlight: rgba(255, 255, 255, 0.35);
+  /* Профили для слоёв (navbar/card/modal) */
+  --lg-navbar-opacity: 0.18;
+  --lg-card-opacity: 0.14;
+  --lg-modal-opacity: 0.15;
 
-  --sheen: conic-gradient(
-    from 180deg at 50% 50%,
-    rgba(255, 255, 255, 0) 0deg,
-    rgba(255, 255, 255, 0.35) 60deg,
-    rgba(255, 255, 255, 0) 120deg,
-    rgba(255, 255, 255, 0.25) 180deg,
-    rgba(255, 255, 255, 0) 240deg,
-    rgba(255, 255, 255, 0.35) 300deg,
-    rgba(255, 255, 255, 0) 360deg
-  );
-}
-
-/* DARK */
-:root[data-theme='dark'] {
+  /* Цветовая схема для браузера */
   color-scheme: dark;
-  --bg: #0b0f16;
-  --bg-elev: #111826;
-  --text: #edf2f7;
-  --text-muted: #94a3b8;
-  --primary: #7aa2ff;
-  --primary-ink: #0b0f16;
-  --border: rgba(148, 163, 184, 0.12);
 
-  --glass-fill: rgba(17, 24, 39, 0.55);
-  --glass-stroke: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 12px 38px rgba(0, 0, 0, 0.45);
-  --glass-highlight: rgba(255, 255, 255, 0.1);
-
-  --sheen: conic-gradient(
-    from 180deg at 50% 50%,
-    rgba(255, 255, 255, 0) 0deg,
-    rgba(255, 255, 255, 0.1) 70deg,
-    rgba(255, 255, 255, 0) 140deg,
-    rgba(255, 255, 255, 0.06) 210deg,
-    rgba(255, 255, 255, 0) 280deg,
-    rgba(255, 255, 255, 0.1) 330deg,
-    rgba(255, 255, 255, 0) 360deg
-  );
+  /* Базовая раскраска страницы */
+  background: var(--bg);
+  color: var(--fg);
 }
 
-/* базовые стили */
-* {
+/* Dark */
+:root[data-theme='dark'] {
+  --bg: #0b0c10;
+  --fg: #e6e6e6;
+  --surface: #111318;
+
+  --lg-opacity: 0.12;
+  --lg-border: 0.55;
+  --lg-highlight: 0.4;
+
+  color-scheme: dark;
+}
+
+/* Light */
+:root[data-theme='light'] {
+  --bg: #f5f7fb;
+  --fg: #1b1c1f;
+  --surface: #ffffff;
+
+  --lg-opacity: 0.18;
+  --lg-border: 0.7;
+  --lg-highlight: 0.32;
+
+  color-scheme: light;
+}
+
+/* Доступность: меньше прозрачности — убираем blur и делаем плотнее фон */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --lg-blur: 0px;
+    --lg-opacity: 0.1;
+    --lg-navbar-opacity: 0.12;
+    --lg-card-opacity: 0.12;
+    --lg-modal-opacity: 0.12;
+    --lg-distortion: none;
+  }
+}
+
+/* Доступность: меньше движения — выключаем shimmer */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --lg-shimmer-speed: 0s;
+  }
+}
+
+/* Высокий контраст — усиливаем непрозрачность и границы */
+@media (prefers-contrast: more) {
+  :root {
+    --lg-opacity: 0.3;
+    --lg-border: 0.9;
+    --lg-noise-alpha: 0.02;
+  }
+}
+
+/* Мобильная деградация: меньше blur/без дисторсии */
+@media (max-width: 768px) {
+  :root {
+    --lg-blur: var(--lg-blur-sm);
+    --lg-distortion: none;
+  }
+}
+
+/* Reset/утилиты */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
+
 html,
-body {
+body,
+app-root {
   height: 100%;
 }
+
 body {
   margin: 0;
-  font-family: var(--font-sans);
-  font-size: var(--fs-16);
+  font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue',
+    Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
   background: var(--bg);
-  color: var(--text);
+  color: var(--fg);
 }
 
-.u-muted {
-  color: var(--text-muted);
-}
-.u-border {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.u-elev {
-  background: var(--bg-elev);
-  box-shadow: var(--shadow-1);
-  border-radius: var(--radius-xl);
-}
-
-/* кнопки/карточки */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  cursor: pointer;
-  user-select: none;
-  font-weight: 600;
-  transition: transform var(--tr-fast), box-shadow var(--tr-fast), background var(--tr-fast);
-}
-.btn-primary {
-  background: var(--primary);
-  color: var(--primary-ink);
-  box-shadow: 0 6px 20px color-mix(in oklab, var(--primary) 20%, transparent);
-}
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 26px color-mix(in oklab, var(--primary) 26%, transparent);
-}
-.btn-ghost {
-  background: transparent;
-  border-color: var(--border);
-  color: var(--text);
-}
-.btn-ghost:hover {
-  background: color-mix(in oklab, var(--bg-elev) 60%, transparent);
-}
-
-.card {
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-1);
-  padding: 18px;
-}
-
-.app-shell {
-  min-height: 100dvh;
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 16px;
-  padding: clamp(12px, 2vw, 24px);
-}
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.app-main {
-  display: grid;
-  gap: 16px;
+/* Контейнер страницы */
+.page {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: 24px;
 }
