@@ -1,8 +1,4 @@
-/**
- * LanguageService — отдельный от темы. Управляет языком и направлением письма.
- * По умолчанию — берём из Telegram WebApp, если присутствует, иначе — из браузера.
- */
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 export type UiLang = string; // 'ru' | 'en' | 'de' | ...
 
@@ -10,7 +6,9 @@ export type UiLang = string; // 'ru' | 'en' | 'de' | ...
 export class LanguageService {
   private readonly root = document.documentElement;
 
-  /** Инициализация языка. Можно вызвать в App initializer. */
+  /** актуальный язык приложения (signal) */
+  readonly current = signal<UiLang>('ru');
+
   init(autoDetect = true, fallback: UiLang = 'ru'): void {
     if (autoDetect) {
       const fromTg = this.detectTelegramLang();
@@ -22,25 +20,23 @@ export class LanguageService {
     }
   }
 
-  /** Явная установка языка (и направления письма) */
   setLang(lang: UiLang): void {
+    this.current.set(lang);
     this.root.setAttribute('lang', lang);
     const rtlList = ['ar', 'he', 'fa', 'ur'];
     this.root.setAttribute('dir', rtlList.includes(lang) ? 'rtl' : 'ltr');
+    // можно при желании кидать кастомное событие
   }
 
   getLang(): UiLang {
-    return this.root.getAttribute('lang') || 'ru';
+    return this.current();
   }
 
-  /** Попытка достать язык пользователя из Telegram WebApp */
   private detectTelegramLang(): UiLang | null {
-    // безопасная проверка наличия объекта
     const w = window as any;
     const tg = w?.Telegram?.WebApp;
-    const code: string | undefined = tg?.initDataUnsafe?.user?.language_code ?? tg?.platform; // platform — запасной вариант
+    const code: string | undefined = tg?.initDataUnsafe?.user?.language_code ?? tg?.platform;
     if (!code) return null;
-    // Нормализуем: "ru-RU" -> "ru"
     return String(code).toLowerCase().split('-')[0];
   }
 }

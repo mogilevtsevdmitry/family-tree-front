@@ -1,35 +1,5 @@
 {
-    "APP": {
-        "TITLE": "Family Tree",
-        "DESCRIPTION": "A modern genealogy web app integrated with Telegram.",
-        "LANG": "Language",
-        "THEME": "Theme"
-    },
-    "MENU": {
-        "HOME": "Home",
-        "TREE": "Family Tree",
-        "PROFILE": "Profile",
-        "SETTINGS": "Settings",
-        "LOGOUT": "Logout"
-    },
-    "PROFILE": {
-        "NAME": "Name",
-        "SURNAME": "Surname",
-        "DATE_OF_BIRTH": "Date of Birth",
-        "DATE_OF_DEATH": "Date of Death",
-        "PHOTO": "Photo",
-        "RELATIONS": "Relations"
-    },
-    "ERRORS": {
-        "NETWORK": "Network error. Please try again later.",
-        "NOT_FOUND": "Page not found.",
-        "UNKNOWN": "An unknown error occurred."
-    },
-    "BUTTONS": {
-        "SAVE": "Save",
-        "CANCEL": "Cancel",
-        "EDIT": "Edit",
-        "DELETE": "Delete",
-        "ADD": "Add"
-    }
+    "header.brand": "Family Tree",
+    "nav.home": "Home",
+    "nav.profile": "Profile"
 }

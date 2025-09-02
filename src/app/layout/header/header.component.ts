@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 import { LanguageToggleComponent } from '../../shared/components/theme-toggle/language-toggle/language-toggle.component';
+import { TranslationService } from '../../shared/services/translation.service';
 
 @Component({
   selector: 'app-header',
@@ -65,9 +66,7 @@ import { LanguageToggleComponent } from '../../shared/components/theme-toggle/la
         gap: 8px;
       }
 
-      /* контейнер всей шапки с Liquid Glass */
       .lg-container {
-        /* класс берётся из _glass.scss; дублируем только на случай отсутствия */
         padding: 0.75rem 1rem;
       }
     `,
@@ -75,12 +74,12 @@ import { LanguageToggleComponent } from '../../shared/components/theme-toggle/la
   template: `
     <header class="lg-container" role="banner" aria-label="Main header">
       <div class="brand">
-        <a routerLink="/">Family Tree</a>
+        <a routerLink="/">{{ i18n.t('header.brand') }}</a>
       </div>
 
       <nav aria-label="Primary">
-        <a class="btn-lg" routerLink="/">Главная</a>
-        <a class="btn-lg" routerLink="/profile">Профиль</a>
+        <a class="btn-lg" routerLink="/">{{ i18n.t('nav.home') }}</a>
+        <a class="btn-lg" routerLink="/profile">{{ i18n.t('nav.profile') }}</a>
       </nav>
 
       <div class="actions">
@@ -90,4 +89,6 @@ import { LanguageToggleComponent } from '../../shared/components/theme-toggle/la
     </header>
   `,
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  public i18n = inject(TranslationService);
+}
