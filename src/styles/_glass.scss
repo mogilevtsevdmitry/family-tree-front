@@ -1,17 +1,5 @@
 /* Liquid Glass поверхность с поддержкой: дисторсии (SVG), shimmer, fallbacks, профилей слоёв. */
 
-@keyframes lg-shimmer {
-  0% {
-    transform: translate(-5%, -8%) rotate(0.001deg);
-  }
-  50% {
-    transform: translate(6%, 3%) rotate(0.001deg);
-  }
-  100% {
-    transform: translate(-5%, -8%) rotate(0.001deg);
-  }
-}
-
 /* Общий миксин поверхности */
 @mixin lg-surface($elev: 1, $opacity: var(--lg-opacity)) {
   filter: none;
@@ -54,10 +42,9 @@
     content: '';
     pointer-events: none;
     position: absolute;
-    inset: -20%;
+    inset: 0;
     border-radius: inherit;
     background: radial-gradient(60% 30% at 10% 0%, rgba(255, 255, 255, 0.12), transparent 60%);
-    animation: lg-shimmer var(--lg-shimmer-speed) linear infinite;
   }
 
   /* Поддержка системного размытия */

@@ -21,14 +21,14 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
       .loading {
         text-align: center;
         padding: 20px;
-        color: #666;
+        color: var(--text-secondary);
       }
 
       .error {
         text-align: center;
         padding: 20px;
-        color: #d32f2f;
-        background-color: #ffebee;
+        color: var(--error-color);
+        background-color: var(--error-bg);
         border-radius: 8px;
         margin-bottom: 16px;
       }
@@ -36,7 +36,7 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
       .error button {
         margin-top: 10px;
         padding: 8px 16px;
-        background-color: #d32f2f;
+        background-color: var(--error-color);
         color: white;
         border: none;
         border-radius: 4px;
@@ -44,7 +44,7 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
       }
 
       .error button:hover {
-        background-color: #b71c1c;
+        background-color: color-mix(in srgb, var(--error-color) 80%, black);
       }
 
       .profile-data {
@@ -58,7 +58,7 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--border-color);
       }
 
       .info-row:last-child {
@@ -67,14 +67,14 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
 
       .info-row strong {
         flex: 0 0 200px;
-        color: #333;
+        color: var(--fg);
         font-weight: 600;
       }
 
       .info-row span {
         flex: 1;
         text-align: right;
-        color: #555;
+        color: var(--text-secondary);
       }
 
       .photo-section {
@@ -82,7 +82,7 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
         justify-content: center;
         margin-bottom: 24px;
         padding-bottom: 16px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid var(--border-color);
       }
 
       .photo-thumbnail {
@@ -91,12 +91,12 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
         border-radius: 50%;
         object-fit: cover;
         cursor: pointer;
-        border: 3px solid #e0e0e0;
+        border: 3px solid var(--border-color);
         transition: border-color 0.3s ease, transform 0.2s ease;
       }
 
       .photo-thumbnail:hover {
-        border-color: #007bff;
+        border-color: var(--lg-tint);
         transform: scale(1.05);
       }
 
@@ -104,12 +104,12 @@ import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-m
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background-color: #f5f5f5;
-        border: 3px solid #e0e0e0;
+        background-color: var(--surface);
+        border: 3px solid var(--border-color);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #999;
+        color: var(--text-muted);
         font-size: 14px;
         text-align: center;
       }
