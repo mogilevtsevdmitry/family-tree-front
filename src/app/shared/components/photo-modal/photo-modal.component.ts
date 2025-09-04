@@ -37,8 +37,8 @@ import { CommonModule } from '@angular/common';
 
       .close-button {
         position: absolute;
-        top: -40px;
-        right: 0;
+        top: 5px;
+        right: 5px;
         background: rgba(255, 255, 255, 0.2);
         border: none;
         color: white;
