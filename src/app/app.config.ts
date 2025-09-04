@@ -1,7 +1,10 @@
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { ApplicationConfig, inject, provideZoneChangeDetection } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideRouter } from '@angular/router';
+import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { provideFamilyTreeApi } from './core/api/provide-family-tree-api';
 import { LanguageService } from './shared/services/language.service';
 import { ThemeService } from './shared/services/theme.service';
 
@@ -20,5 +23,10 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     { provide: 'APP_INITIALIZER', useFactory: initApp, multi: true },
     provideHttpClient(),
+    provideFamilyTreeApi({
+      baseUrl: environment.apiBaseUrl,
+      apiPrefixes: ['/users', '/persons', '/relations', '/media'],
+    }),
+    provideAnimationsAsync(),
   ],
 };

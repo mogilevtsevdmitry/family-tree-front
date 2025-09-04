@@ -25,7 +25,6 @@ export class LanguageService {
     this.root.setAttribute('lang', lang);
     const rtlList = ['ar', 'he', 'fa', 'ur'];
     this.root.setAttribute('dir', rtlList.includes(lang) ? 'rtl' : 'ltr');
-    // можно при желании кидать кастомное событие
   }
 
   getLang(): UiLang {
