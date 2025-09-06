@@ -7,10 +7,13 @@ import {
   ElementRef,
   ViewChild,
   AfterViewInit,
+  inject,
+  effect,
 } from '@angular/core';
 import { Person, Relation } from '../../../core/api/domain/entities';
 import { TreePerson, TreeRelation, TreeBounds } from '../../interfaces/tree.interface';
 import { TreeLayoutService } from '../../services/tree-layout.service';
+import { ViewportHeightService } from '../../services/viewport-height.service';
 import { PersonCardComponent } from '../person-card/person-card.component';
 
 @Component({
@@ -22,7 +25,7 @@ import { PersonCardComponent } from '../person-card/person-card.component';
       .tree-container {
         position: relative;
         width: 100%;
-        height: 100vh;
+        height: var(--tree-container-height, 100vh);
         overflow: hidden;
         background: var(--background-color, #f8f9fa);
         cursor: grab;
@@ -95,6 +98,7 @@ import { PersonCardComponent } from '../person-card/person-card.component';
     <div
       class="tree-container"
       [class.dragging]="isDragging"
+      [style.--tree-container-height]="viewportHeight.getContentHeightCss()"
       (mousedown)="onMouseDown($event)"
       (mousemove)="onMouseMove($event)"
       (mouseup)="onMouseUp($event)"
@@ -187,13 +191,25 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
   svgWidth = 0;
   svgHeight = 0;
 
-  constructor(private treeLayoutService: TreeLayoutService) {}
+  // Сервис для работы с высотой viewport
+  viewportHeight = inject(ViewportHeightService);
+
+  constructor(private treeLayoutService: TreeLayoutService) {
+    // Обновляем высоту при изменении размеров
+    effect(() => {
+      const contentHeight = this.viewportHeight.contentHeight();
+      this.updateSvgSize();
+      this.centerTree();
+    });
+  }
 
   ngOnInit(): void {
     this.calculateTreeLayout();
   }
 
   ngAfterViewInit(): void {
+    // Обновляем высоты после инициализации view
+    this.viewportHeight.refreshHeights();
     this.updateSvgSize();
     this.centerTree();
   }
@@ -218,7 +234,7 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.treeContent?.nativeElement) {
       const rect = this.treeContent.nativeElement.getBoundingClientRect();
       this.svgWidth = window.innerWidth;
-      this.svgHeight = window.innerHeight;
+      this.svgHeight = this.viewportHeight.contentHeight();
     }
   }
 
@@ -231,7 +247,7 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
     const centerY = (this.bounds.minY + this.bounds.maxY) / 2;
 
     this.translateX = window.innerWidth / 2 - centerX;
-    this.translateY = window.innerHeight / 2 - centerY;
+    this.translateY = this.viewportHeight.contentHeight() / 2 - centerY;
   }
 
   getTransform(): string {

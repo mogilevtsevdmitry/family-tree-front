@@ -10,25 +10,26 @@ import { FamilyTreeDataService } from '../../shared/services/family-tree-data.se
   imports: [CommonModule, FamilyTreeComponent],
   styleUrls: ['./home.page.scss'],
   template: `
-    <div *ngIf="isLoading" class="loading-container">
+    @if (isLoading) {
+    <div class="loading-container">
       <div class="loading-spinner"></div>
       <p>Загрузка семейного дерева...</p>
     </div>
-
-    <div *ngIf="error" class="error-container">
+    } @if (error) {
+    <div class="error-container">
       <div class="error-message">
         <h3>Ошибка загрузки</h3>
         <p>{{ error }}</p>
         <button (click)="loadFamilyTreeData()" class="retry-button">Попробовать снова</button>
       </div>
     </div>
-
+    } @if (!isLoading && !error) {
     <app-family-tree
-      *ngIf="!isLoading && !error"
       [persons]="persons"
       [relations]="relations"
       [currentUserId]="currentUserId"
     ></app-family-tree>
+    }
   `,
 })
 export class HomePage implements OnInit {
