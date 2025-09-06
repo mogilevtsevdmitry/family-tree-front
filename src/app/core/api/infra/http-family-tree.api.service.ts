@@ -31,7 +31,6 @@ function toQuery(p?: Pagination): string {
 export class HttpFamilyTreeApiService extends FamilyTreeApiPort {
   constructor(private http: HttpClient) {
     super();
-    console.log('🚀 [HttpFamilyTreeApiService] Service initialized with HttpClient:', !!http);
   }
 
   // USERS
@@ -54,12 +53,9 @@ export class HttpFamilyTreeApiService extends FamilyTreeApiPort {
 
   // PERSONS
   async createPerson(dto: CreatePersonDto): Promise<Person> {
-    console.log('🔄 [HttpFamilyTreeApiService] Creating person:', dto);
     return firstValueFrom(this.http.post<Person>('/persons', dto));
   }
   async getPerson(id: Id): Promise<Person> {
-    console.log('🔄 [HttpFamilyTreeApiService] Getting person by ID:', id);
-    console.log('🔄 [HttpFamilyTreeApiService] URL will be:', `/persons/${id}`);
     return firstValueFrom(this.http.get<Person>(`/persons/${id}`));
   }
   async listPersons(p?: Pagination): Promise<ListResponse<Person>> {

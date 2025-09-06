@@ -4,7 +4,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideRouter } from '@angular/router';
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
-import { provideFamilyTreeApi } from './core/api/provide-family-tree-api';
+import { provideFamilyTreeApi, provideMockFamilyTreeApi } from './core/api/provide-family-tree-api';
 import { LanguageService } from './shared/services/language.service';
 import { ThemeService } from './shared/services/theme.service';
 
@@ -23,10 +23,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     { provide: 'APP_INITIALIZER', useFactory: initApp, multi: true },
     provideHttpClient(),
-    provideFamilyTreeApi({
-      baseUrl: environment.apiBaseUrl,
-      apiPrefixes: ['/users', '/persons', '/relations', '/media'],
-    }),
+    // Переключение между реальным и моковым API
+    environment.useMockApi
+      ? provideMockFamilyTreeApi()
+      : provideFamilyTreeApi({
+          baseUrl: environment.apiBaseUrl,
+          apiPrefixes: ['/users', '/persons', '/relations', '/media'],
+        }),
     provideAnimationsAsync(),
   ],
 };

@@ -3,6 +3,7 @@ import { EnvironmentProviders, inject, makeEnvironmentProviders } from '@angular
 import { FamilyTreeApiPort } from './domain/family-tree.api.port';
 import { API_CONFIG, ApiConfig, FAMILY_TREE_API } from './infra/api.config';
 import { HttpFamilyTreeApiService } from './infra/http-family-tree.api.service';
+import { MockFamilyTreeApiService } from './infra/mock-family-tree.api.service';
 import { baseUrlInterceptor } from './infra/interceptors/base-url.interceptor';
 import { loggingInterceptor } from './infra/interceptors/logging.interceptor';
 import { telegramAuthInterceptorFn } from './infra/interceptors/telegram-auth.interceptor';
@@ -29,5 +30,19 @@ export function provideFamilyTreeApi(config: ApiConfig): EnvironmentProviders {
     HttpFamilyTreeApiService,
     { provide: FAMILY_TREE_API, useExisting: HttpFamilyTreeApiService },
     { provide: FamilyTreeApiPort, useExisting: HttpFamilyTreeApiService },
+  ]);
+}
+
+/**
+ * Подключает моковый сервис для тестирования без реального API:
+ * - MockFamilyTreeApiService с тестовыми данными
+ * - Реализацию порта FamilyTreeApiPort
+ */
+export function provideMockFamilyTreeApi(): EnvironmentProviders {
+  console.log('🔧 [provideMockFamilyTreeApi] Configuring Mock API');
+  return makeEnvironmentProviders([
+    MockFamilyTreeApiService,
+    { provide: FAMILY_TREE_API, useExisting: MockFamilyTreeApiService },
+    { provide: FamilyTreeApiPort, useExisting: MockFamilyTreeApiService },
   ]);
 }

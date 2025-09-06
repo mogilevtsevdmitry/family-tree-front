@@ -23,6 +23,7 @@ export interface UpdateUserDto extends Partial<CreateUserDto> {}
 
 export interface CreatePersonDto {
   userId: string;
+  firstName?: string | null; // Имя персоны
   lastName?: string | null;
   middleName?: string | null;
   birthDate?: string | null; // ISO

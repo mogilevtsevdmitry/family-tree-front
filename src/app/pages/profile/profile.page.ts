@@ -3,118 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FamilyTreeApiPort } from '../../core/api/domain/family-tree.api.port';
 import { Person } from '../../core/api/domain/entities';
 import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-modal.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile-page',
   standalone: true,
   imports: [CommonModule, PhotoModalComponent],
-  styles: [
-    `
-      .wrap {
-        margin-top: 24px;
-      }
-      .lg-card {
-        padding: 16px;
-        border-radius: 16px;
-      }
-
-      .loading {
-        text-align: center;
-        padding: 20px;
-        color: var(--text-secondary);
-      }
-
-      .error {
-        text-align: center;
-        padding: 20px;
-        color: var(--error-color);
-        background-color: var(--error-bg);
-        border-radius: 8px;
-        margin-bottom: 16px;
-      }
-
-      .error button {
-        margin-top: 10px;
-        padding: 8px 16px;
-        background-color: var(--error-color);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      .error button:hover {
-        background-color: color-mix(in srgb, var(--error-color) 80%, black);
-      }
-
-      .profile-data {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-
-      .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .info-row:last-child {
-        border-bottom: none;
-      }
-
-      .info-row strong {
-        flex: 0 0 200px;
-        color: var(--fg);
-        font-weight: 600;
-      }
-
-      .info-row span {
-        flex: 1;
-        text-align: right;
-        color: var(--text-secondary);
-      }
-
-      .photo-section {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 24px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .photo-thumbnail {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        object-fit: cover;
-        cursor: pointer;
-        border: 3px solid var(--border-color);
-        transition: border-color 0.3s ease, transform 0.2s ease;
-      }
-
-      .photo-thumbnail:hover {
-        border-color: var(--lg-tint);
-        transform: scale(1.05);
-      }
-
-      .photo-placeholder {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background-color: var(--surface);
-        border: 3px solid var(--border-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--text-muted);
-        font-size: 14px;
-        text-align: center;
-      }
-    `,
-  ],
+  styleUrl: './profile.scss',
   template: `
     <section class="wrap">
       <div class="lg-card">
@@ -207,7 +102,7 @@ export class ProfilePage implements OnInit {
   private readonly api = inject(FamilyTreeApiPort);
 
   // Статические данные для тестирования
-  private readonly personId = 'aa3dfb69-abbc-452d-b9d7-790db608b564';
+  private readonly personId = environment.useMockApi ? '1' : 'aa3dfb69-abbc-452d-b9d7-790db608b564';
 
   person: Person | null = null;
   loading = false;
