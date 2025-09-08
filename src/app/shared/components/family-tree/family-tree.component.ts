@@ -4,6 +4,8 @@ import {
   Input,
   OnInit,
   OnDestroy,
+  OnChanges,
+  SimpleChanges,
   ElementRef,
   ViewChild,
   AfterViewInit,
@@ -16,11 +18,12 @@ import { TreePerson, TreeRelation, TreeBounds } from '../../interfaces/tree.inte
 import { TreeLayoutService } from '../../services/tree-layout.service';
 import { ViewportHeightService } from '../../services/viewport-height.service';
 import { PersonCardComponent } from '../person-card/person-card.component';
+import { TreeControlsComponent } from './tree-controls/tree-controls.component';
 
 @Component({
   selector: 'app-family-tree',
   standalone: true,
-  imports: [CommonModule, PersonCardComponent],
+  imports: [CommonModule, PersonCardComponent, TreeControlsComponent],
   styleUrls: ['./family-tree.component.scss'],
   template: `
     <div
@@ -49,7 +52,7 @@ import { PersonCardComponent } from '../person-card/person-card.component';
         </defs>
 
         <!-- Линии связей -->
-        <g *ngFor="let relation of treeRelations">
+        <g *ngFor="let relation of getFilteredRelations()">
           <path
             [attr.d]="getConnectionPath(relation)"
             stroke="var(--text-secondary, #666)"
@@ -66,32 +69,18 @@ import { PersonCardComponent } from '../person-card/person-card.component';
       </div>
 
       <!-- Элементы управления -->
-      <div class="tree-controls">
-        <button
-          class="control-button"
-          (click)="zoomIn()"
-          [disabled]="scale >= maxScale"
-          title="Увеличить"
-        >
-          +
-        </button>
-        <button
-          class="control-button"
-          (click)="zoomOut()"
-          [disabled]="scale <= minScale"
-          title="Уменьшить"
-        >
-          −
-        </button>
-        <button class="control-button" (click)="resetView()" title="Сбросить вид">⌂</button>
-      </div>
-
-      <!-- Информация о масштабе -->
-      <div class="zoom-info">Масштаб: {{ scale * 100 | number : '1.0-0' }}%</div>
+      <app-tree-controls
+        [scale]="scale"
+        [minScale]="minScale"
+        [maxScale]="maxScale"
+        (zoomIn)="zoomIn()"
+        (zoomOut)="zoomOut()"
+        (resetView)="resetView()"
+      ></app-tree-controls>
     </div>
   `,
 })
-export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @Input() persons: Person[] = [];
   @Input() relations: Relation[] = [];
   @Input() currentUserId: string = '';
@@ -138,6 +127,18 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.calculateTreeLayout();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // Пересчитываем дерево при изменении входных данных
+    if (changes['persons'] || changes['relations'] || changes['currentUserId']) {
+      this.calculateTreeLayout();
+      // Центрируем дерево после пересчета
+      setTimeout(() => {
+        this.centerTree();
+        this.cdr.detectChanges();
+      });
+    }
+  }
+
   ngAfterViewInit(): void {
     // Обновляем высоты после инициализации view
     this.viewportHeight.refreshHeights();
@@ -165,6 +166,22 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateTreeLayout(): void {
+    // Валидация входных данных
+    if (!this.persons || this.persons.length === 0) {
+      this.treePersons = [];
+      this.treeRelations = [];
+      this.bounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+      return;
+    }
+
+    if (!this.relations) {
+      this.relations = [];
+    }
+
+    if (!this.currentUserId) {
+      console.warn('FamilyTreeComponent: currentUserId не задан');
+    }
+
     const result = this.treeLayoutService.calculateTreeLayout(
       this.persons,
       this.relations,
@@ -185,6 +202,9 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.svgWidth !== newWidth || this.svgHeight !== newHeight) {
         this.svgWidth = newWidth;
         this.svgHeight = newHeight;
+
+        // Принудительно обновляем view для корректного отображения
+        this.cdr.detectChanges();
       }
     }
   }
@@ -205,29 +225,109 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
     return `translate(${this.translateX}px, ${this.translateY}px) scale(${this.scale})`;
   }
 
+  getFilteredRelations(): TreeRelation[] {
+    const filteredRelations: TreeRelation[] = [];
+    const processedChildren = new Set<string>();
+
+    for (const relation of this.treeRelations) {
+      // Для связей супругов - показываем все
+      if (relation.type === 'spouse') {
+        filteredRelations.push(relation);
+      }
+      // Для связей к родителям - показываем все
+      else if (relation.type === 'father' || relation.type === 'mother') {
+        filteredRelations.push(relation);
+      }
+      // Для связей к детям - показываем только одну линию от центра родителей
+      else if (relation.type === 'son' || relation.type === 'daughter') {
+        if (!processedChildren.has(relation.to.id)) {
+          // Создаем виртуальную связь от центра родителей к ребенку
+          const virtualRelation: TreeRelation = {
+            from: this.createVirtualParentCenter(relation.to),
+            to: relation.to,
+            type: relation.type,
+          };
+          filteredRelations.push(virtualRelation);
+          processedChildren.add(relation.to.id);
+        }
+      }
+      // Для других типов связей - показываем все
+      else {
+        filteredRelations.push(relation);
+      }
+    }
+
+    return filteredRelations;
+  }
+
+  private createVirtualParentCenter(child: TreePerson): TreePerson {
+    const parents = this.treeRelations
+      .filter((rel) => rel.to.id === child.id && (rel.type === 'father' || rel.type === 'mother'))
+      .map((rel) => rel.from);
+
+    if (parents.length === 0) {
+      return child; // Если родителей нет, возвращаем самого ребенка
+    }
+
+    if (parents.length === 1) {
+      return parents[0]; // Если один родитель, возвращаем его
+    }
+
+    // Если два родителя, создаем виртуальную точку в центре между ними
+    const centerX = (parents[0].x + parents[1].x) / 2;
+    const centerY = parents[0].y; // Родители на одном уровне
+
+    return {
+      ...parents[0], // Копируем все свойства первого родителя
+      id: `virtual-center-${child.id}`,
+      x: centerX,
+      y: centerY,
+      firstName: '',
+      lastName: '',
+      middleName: '',
+      birthDate: null,
+      deathDate: null,
+      birthPlace: null,
+      residencePlace: null,
+      sex: 'male' as any,
+      description: null,
+      user: null,
+      createdAt: '',
+      updatedAt: '',
+      deletedAt: null,
+      userId: '',
+      level: parents[0].level,
+      isCurrentUser: false,
+    };
+  }
+
   getConnectionPath(relation: TreeRelation): string {
-    const fromX = relation.from.x + 100; // Центр карточки
-    const fromY = relation.from.y + 60;
-    const toX = relation.to.x + 100;
-    const toY = relation.to.y + 60;
+    // Получаем размеры карточки из конфигурации
+    const cardWidth = 200;
+    const cardHeight = 120;
+
+    // Рассчитываем позиции с учетом трансформаций дерева
+    const fromX = (relation.from.x + cardWidth / 2) * this.scale + this.translateX;
+    const fromY = (relation.from.y + cardHeight / 2) * this.scale + this.translateY;
+    const toX = (relation.to.x + cardWidth / 2) * this.scale + this.translateX;
+    const toY = (relation.to.y + cardHeight / 2) * this.scale + this.translateY;
 
     // Для супругов - прямая горизонтальная линия
     if (relation.type === 'spouse') {
       return `M ${fromX} ${fromY} L ${toX} ${toY}`;
     }
 
-    // Для родителей и детей - кривая линия
-    const controlY = (fromY + toY) / 2;
-    const controlOffset = Math.abs(toY - fromY) * 0.3;
-
+    // Для связей к родителям - прямая линия вверх
     if (relation.type === 'father' || relation.type === 'mother') {
-      // Линия к родителям (вверх)
-      return `M ${fromX} ${fromY} Q ${fromX} ${fromY - controlOffset} ${toX} ${toY}`;
-    } else if (relation.type === 'son' || relation.type === 'daughter') {
-      // Линия к детям (вниз)
+      return `M ${fromX} ${fromY} L ${toX} ${toY}`;
+    }
+    // Для связей к детям - кривая линия вниз
+    else if (relation.type === 'son' || relation.type === 'daughter') {
+      const controlOffset = Math.abs(toY - fromY) * 0.3;
       return `M ${fromX} ${fromY} Q ${fromX} ${fromY + controlOffset} ${toX} ${toY}`;
-    } else {
-      // Для других типов связей - прямая линия
+    }
+    // Для других типов связей - прямая линия
+    else {
       return `M ${fromX} ${fromY} L ${toX} ${toY}`;
     }
   }
@@ -252,6 +352,9 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this.lastMouseX = event.clientX;
       this.lastMouseY = event.clientY;
+
+      // Принудительно обновляем view для перерисовки линий
+      this.cdr.detectChanges();
     }
   }
 
@@ -278,6 +381,9 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.translateY = mouseY - (mouseY - this.translateY) * scaleFactor;
 
       this.scale = newScale;
+
+      // Принудительно обновляем view для перерисовки линий
+      this.cdr.detectChanges();
     }
   }
 
@@ -285,17 +391,20 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
   zoomIn(): void {
     if (this.scale < this.maxScale) {
       this.scale = Math.min(this.maxScale, this.scale + 0.2);
+      this.cdr.detectChanges();
     }
   }
 
   zoomOut(): void {
     if (this.scale > this.minScale) {
       this.scale = Math.max(this.minScale, this.scale - 0.2);
+      this.cdr.detectChanges();
     }
   }
 
   resetView(): void {
     this.scale = 1;
     this.centerTree();
+    this.cdr.detectChanges();
   }
 }

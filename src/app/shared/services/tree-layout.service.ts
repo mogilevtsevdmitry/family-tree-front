@@ -11,7 +11,7 @@ export class TreeLayoutService {
     cardHeight: 120,
     horizontalSpacing: 300, // Увеличиваем горизонтальное расстояние
     verticalSpacing: 200,
-    spouseSpacing: 80, // Увеличиваем расстояние между супругами
+    spouseSpacing: 40,
     minScale: 0.3,
     maxScale: 2.0,
   };
