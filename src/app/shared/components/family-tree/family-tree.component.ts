@@ -12,6 +12,7 @@ import {
   effect,
   ChangeDetectorRef,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { Person, Relation } from '../../../core/api/domain/entities';
 import { TreePerson, TreeRelation, TreeBounds } from '../../interfaces/tree.interface';
 import { TreeLayoutService } from '../../services/tree-layout.service';
@@ -60,7 +61,7 @@ import { TreeControlsComponent } from './tree-controls/tree-controls.component';
       <!-- Контент дерева -->
       <div #treeContent class="tree-content" [style.transform]="getTransform()">
         @for (person of treePersons; track person.id) {
-        <app-person-card [person]="person"></app-person-card>
+        <app-person-card [person]="person" (personClick)="onPersonClick($event)"></app-person-card>
         }
       </div>
 
@@ -107,6 +108,7 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
   // Сервис для работы с высотой viewport
   viewportHeight = inject(ViewportHeightService);
   private cdr = inject(ChangeDetectorRef);
+  private router = inject(Router);
 
   constructor(private treeLayoutService: TreeLayoutService) {
     // Обновляем высоту при изменении размеров
@@ -402,5 +404,9 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
     this.scale = 1;
     this.centerTree();
     this.cdr.detectChanges();
+  }
+
+  onPersonClick(personId: string): void {
+    this.router.navigate(['/profile', personId]);
   }
 }

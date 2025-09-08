@@ -4,6 +4,6 @@ import { ProfilePage } from './pages/profile/profile.page';
 
 export const routes: Routes = [
   { path: '', component: HomePage, title: 'Family Tree — Home' },
-  { path: 'profile', component: ProfilePage, title: 'Family Tree — Profile' },
+  { path: 'profile/:id', component: ProfilePage, title: 'Family Tree — Profile' },
   { path: '**', redirectTo: '' },
 ];

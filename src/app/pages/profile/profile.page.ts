@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 import { FamilyTreeApiPort } from '../../core/api/domain/family-tree.api.port';
 import { Person } from '../../core/api/domain/entities';
 import { PhotoModalComponent } from '../../shared/components/photo-modal/photo-modal.component';
@@ -100,9 +101,10 @@ import { environment } from '../../../environments/environment';
 })
 export class ProfilePage implements OnInit {
   private readonly api = inject(FamilyTreeApiPort);
+  private readonly route = inject(ActivatedRoute);
 
-  // Статические данные для тестирования
-  private readonly personId = environment.useMockApi ? '1' : 'aa3dfb69-abbc-452d-b9d7-790db608b564';
+  // ID персоны из параметров маршрута
+  private personId: string = '';
 
   person: Person | null = null;
   loading = false;
@@ -112,6 +114,14 @@ export class ProfilePage implements OnInit {
   isPhotoModalVisible = false;
 
   async ngOnInit() {
+    // Получаем ID персоны из параметров маршрута
+    this.personId = this.route.snapshot.paramMap.get('id') || '';
+
+    if (!this.personId) {
+      this.error = 'ID персоны не указан';
+      return;
+    }
+
     await this.loadPersonData();
   }
 

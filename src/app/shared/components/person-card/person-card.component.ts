@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { TreePerson } from '../../interfaces/tree.interface';
 
 @Component({
@@ -93,6 +93,7 @@ import { TreePerson } from '../../interfaces/tree.interface';
       [class.female]="person.sex === 'female'"
       [style.left.px]="person.x"
       [style.top.px]="person.y"
+      (click)="onPersonClick()"
     >
       <div class="person-header">
         <div class="person-avatar">
@@ -114,6 +115,7 @@ import { TreePerson } from '../../interfaces/tree.interface';
 })
 export class PersonCardComponent {
   @Input() person!: TreePerson;
+  @Output() personClick = new EventEmitter<string>();
 
   getInitials(): string {
     const firstName = this.person.firstName || '';
@@ -140,5 +142,9 @@ export class PersonCardComponent {
     } catch {
       return dateString;
     }
+  }
+
+  onPersonClick(): void {
+    this.personClick.emit(this.person.id);
   }
 }
