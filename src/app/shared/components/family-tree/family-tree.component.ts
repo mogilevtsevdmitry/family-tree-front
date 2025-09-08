@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   Input,
@@ -23,7 +22,7 @@ import { TreeControlsComponent } from './tree-controls/tree-controls.component';
 @Component({
   selector: 'app-family-tree',
   standalone: true,
-  imports: [CommonModule, PersonCardComponent, TreeControlsComponent],
+  imports: [PersonCardComponent, TreeControlsComponent],
   styleUrls: ['./family-tree.component.scss'],
   template: `
     <div
@@ -37,35 +36,32 @@ import { TreeControlsComponent } from './tree-controls/tree-controls.component';
       (wheel)="onWheel($event)"
     >
       <!-- SVG для линий -->
-      <svg #treeSvg class="tree-svg" [attr.width]="svgWidth" [attr.height]="svgHeight">
-        <defs>
-          <marker
-            id="arrowhead"
-            markerWidth="10"
-            markerHeight="7"
-            refX="9"
-            refY="3.5"
-            orient="auto"
-          >
-            <polygon points="0 0, 10 3.5, 0 7" fill="var(--text-secondary, #666)" />
-          </marker>
-        </defs>
-
+      <svg
+        #treeSvg
+        class="tree-svg"
+        [attr.width]="svgWidth"
+        [attr.height]="svgHeight"
+        [style.transform]="getTransform()"
+      >
         <!-- Линии связей -->
-        <g *ngFor="let relation of getFilteredRelations()">
+        @for (relation of getFilteredRelations(); track relation.from.id + relation.to.id +
+        relation.type) {
+        <g>
           <path
             [attr.d]="getConnectionPath(relation)"
             stroke="var(--text-secondary, #666)"
             stroke-width="1"
             fill="none"
-            marker-end="url(#arrowhead)"
           />
         </g>
+        }
       </svg>
 
       <!-- Контент дерева -->
       <div #treeContent class="tree-content" [style.transform]="getTransform()">
-        <app-person-card *ngFor="let person of treePersons" [person]="person"></app-person-card>
+        @for (person of treePersons; track person.id) {
+        <app-person-card [person]="person"></app-person-card>
+        }
       </div>
 
       <!-- Элементы управления -->
@@ -306,11 +302,11 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
     const cardWidth = 200;
     const cardHeight = 120;
 
-    // Рассчитываем позиции с учетом трансформаций дерева
-    const fromX = (relation.from.x + cardWidth / 2) * this.scale + this.translateX;
-    const fromY = (relation.from.y + cardHeight / 2) * this.scale + this.translateY;
-    const toX = (relation.to.x + cardWidth / 2) * this.scale + this.translateX;
-    const toY = (relation.to.y + cardHeight / 2) * this.scale + this.translateY;
+    // Рассчитываем позиции без трансформаций (SVG сам будет трансформироваться)
+    const fromX = relation.from.x + cardWidth / 2;
+    const fromY = relation.from.y + cardHeight / 2;
+    const toX = relation.to.x + cardWidth / 2;
+    const toY = relation.to.y + cardHeight / 2;
 
     // Для супругов - прямая горизонтальная линия
     if (relation.type === 'spouse') {
