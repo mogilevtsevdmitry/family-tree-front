@@ -9,9 +9,9 @@ export class TreeLayoutService {
   private config: TreeConfig = {
     cardWidth: 200,
     cardHeight: 120,
-    horizontalSpacing: 250,
+    horizontalSpacing: 300, // Увеличиваем горизонтальное расстояние
     verticalSpacing: 200,
-    spouseSpacing: 50,
+    spouseSpacing: 80, // Увеличиваем расстояние между супругами
     minScale: 0.3,
     maxScale: 2.0,
   };
@@ -176,18 +176,23 @@ export class TreeLayoutService {
       });
     }
 
-    // Размещаем супруга рядом
+    // Размещаем супруга справа от текущего пользователя
     const spouse = hierarchy.get('spouse')?.[0];
     if (spouse) {
-      spouse.x = this.config.spouseSpacing;
+      spouse.x = this.config.horizontalSpacing * 0.8;
       spouse.y = 0;
       spouse.level = 0;
     }
 
-    // Размещаем братьев и сестер на том же уровне
+    // Размещаем братьев и сестер слева от текущего пользователя
     const siblings = hierarchy.get('siblings') || [];
     if (siblings.length > 0) {
-      const startX = -((siblings.length - 1) * this.config.horizontalSpacing) / 2;
+      // Размещаем братьев и сестер слева, учитывая наличие супруга
+      const hasSpouse = spouse !== undefined;
+      const startX = hasSpouse
+        ? -this.config.horizontalSpacing * (siblings.length + 1.2)
+        : -this.config.horizontalSpacing * (siblings.length + 0.5);
+
       siblings.forEach((sibling, index) => {
         sibling.x = startX + index * this.config.horizontalSpacing;
         sibling.y = 0;

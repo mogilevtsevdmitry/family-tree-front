@@ -9,6 +9,7 @@ import {
   AfterViewInit,
   inject,
   effect,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { Person, Relation } from '../../../core/api/domain/entities';
 import { TreePerson, TreeRelation, TreeBounds } from '../../interfaces/tree.interface';
@@ -27,8 +28,11 @@ import { PersonCardComponent } from '../person-card/person-card.component';
         width: 100%;
         height: var(--tree-container-height, 100vh);
         overflow: hidden;
-        background: var(--background-color, #f8f9fa);
+        background: var(--surface);
         cursor: grab;
+        border-radius: var(--lg-radius);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
       }
 
       .tree-container.dragging {
@@ -63,34 +67,37 @@ import { PersonCardComponent } from '../person-card/person-card.component';
       .control-button {
         width: 40px;
         height: 40px;
-        border: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 8px;
-        background: var(--surface-color, #ffffff);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        background: var(--surface);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        color: var(--text-primary, #333);
+        color: var(--fg);
         transition: all 0.2s ease;
       }
 
       .control-button:hover {
-        background: var(--surface-hover, #f5f5f5);
+        background: var(--surface);
+        opacity: 0.9;
         transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
       }
 
       .zoom-info {
         position: absolute;
         bottom: 20px;
         left: 20px;
-        background: var(--surface-color, #ffffff);
+        background: var(--surface);
         padding: 8px 12px;
         border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         font-size: 12px;
-        color: var(--text-secondary, #666);
+        color: var(--text-secondary);
       }
     `,
   ],
@@ -188,18 +195,21 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
   lastMouseY = 0;
 
   // Размеры SVG
-  svgWidth = 0;
-  svgHeight = 0;
+  svgWidth = window.innerWidth || 1200;
+  svgHeight = window.innerHeight || 800;
 
   // Сервис для работы с высотой viewport
   viewportHeight = inject(ViewportHeightService);
+  private cdr = inject(ChangeDetectorRef);
 
   constructor(private treeLayoutService: TreeLayoutService) {
     // Обновляем высоту при изменении размеров
     effect(() => {
-      const contentHeight = this.viewportHeight.contentHeight();
-      this.updateSvgSize();
-      this.centerTree();
+      setTimeout(() => {
+        this.updateSvgSize();
+        this.centerTree();
+        this.cdr.detectChanges();
+      });
     });
   }
 
@@ -210,12 +220,27 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // Обновляем высоты после инициализации view
     this.viewportHeight.refreshHeights();
-    this.updateSvgSize();
-    this.centerTree();
+    setTimeout(() => {
+      this.updateSvgSize();
+      this.centerTree();
+      this.cdr.detectChanges();
+    });
+
+    // Добавляем обработчик изменения размера окна
+    window.addEventListener('resize', this.onWindowResize.bind(this));
   }
 
   ngOnDestroy(): void {
-    // Очистка при необходимости
+    // Удаляем обработчик изменения размера окна
+    window.removeEventListener('resize', this.onWindowResize.bind(this));
+  }
+
+  private onWindowResize(): void {
+    setTimeout(() => {
+      this.updateSvgSize();
+      this.centerTree();
+      this.cdr.detectChanges();
+    });
   }
 
   private calculateTreeLayout(): void {
@@ -232,9 +257,14 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private updateSvgSize(): void {
     if (this.treeContent?.nativeElement) {
-      const rect = this.treeContent.nativeElement.getBoundingClientRect();
-      this.svgWidth = window.innerWidth;
-      this.svgHeight = this.viewportHeight.contentHeight();
+      const newWidth = window.innerWidth;
+      const newHeight = this.viewportHeight.contentHeight();
+
+      // Обновляем только если значения изменились
+      if (this.svgWidth !== newWidth || this.svgHeight !== newHeight) {
+        this.svgWidth = newWidth;
+        this.svgHeight = newHeight;
+      }
     }
   }
 
@@ -272,9 +302,12 @@ export class FamilyTreeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (relation.type === 'father' || relation.type === 'mother') {
       // Линия к родителям (вверх)
       return `M ${fromX} ${fromY} Q ${fromX} ${fromY - controlOffset} ${toX} ${toY}`;
-    } else {
+    } else if (relation.type === 'son' || relation.type === 'daughter') {
       // Линия к детям (вниз)
       return `M ${fromX} ${fromY} Q ${fromX} ${fromY + controlOffset} ${toX} ${toY}`;
+    } else {
+      // Для других типов связей - прямая линия
+      return `M ${fromX} ${fromY} L ${toX} ${toY}`;
     }
   }
 

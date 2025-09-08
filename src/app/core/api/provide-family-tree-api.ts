@@ -15,7 +15,6 @@ import { telegramAuthInterceptorFn } from './infra/interceptors/telegram-auth.in
  * - Реализацию порта FamilyTreeApiPort
  */
 export function provideFamilyTreeApi(config: ApiConfig): EnvironmentProviders {
-  console.log('🔧 [provideFamilyTreeApi] Configuring API with:', config);
   return makeEnvironmentProviders([
     { provide: API_CONFIG, useValue: config },
 
@@ -39,7 +38,6 @@ export function provideFamilyTreeApi(config: ApiConfig): EnvironmentProviders {
  * - Реализацию порта FamilyTreeApiPort
  */
 export function provideMockFamilyTreeApi(): EnvironmentProviders {
-  console.log('🔧 [provideMockFamilyTreeApi] Configuring Mock API');
   return makeEnvironmentProviders([
     MockFamilyTreeApiService,
     { provide: FAMILY_TREE_API, useExisting: MockFamilyTreeApiService },

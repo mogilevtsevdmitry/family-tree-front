@@ -121,7 +121,6 @@ export class ProfilePage implements OnInit {
 
     try {
       this.person = await this.api.getPerson(this.personId);
-      console.log('📡 [ProfilePage] Person data loaded successfully:', this.loading, this.error);
     } catch (err) {
       this.error = 'Ошибка загрузки данных профиля';
     } finally {

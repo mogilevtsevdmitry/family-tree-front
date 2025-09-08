@@ -58,8 +58,6 @@ export class ViewportHeightService {
    * Возвращает CSS значение для высоты контента
    */
   getContentHeightCss(): string {
-    const contentHeight = `${this.contentHeight()}px`;
-    console.log({ contentHeight });
-    return contentHeight;
+    return `${this.contentHeight()}px`;
   }
 }

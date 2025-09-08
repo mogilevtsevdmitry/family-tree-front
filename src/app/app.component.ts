@@ -9,7 +9,6 @@ import { HeaderComponent } from './layout/header/header.component';
   styles: [
     `
       main.page {
-        max-width: 1200px;
         margin: 0 auto;
         padding: 24px;
       }
