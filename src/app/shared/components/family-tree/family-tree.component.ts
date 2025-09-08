@@ -56,7 +56,7 @@ import { TreeControlsComponent } from './tree-controls/tree-controls.component';
           <path
             [attr.d]="getConnectionPath(relation)"
             stroke="var(--text-secondary, #666)"
-            stroke-width="2"
+            stroke-width="1"
             fill="none"
             marker-end="url(#arrowhead)"
           />
