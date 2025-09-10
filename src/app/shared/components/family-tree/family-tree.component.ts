@@ -119,6 +119,7 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
         this.cdr.detectChanges();
       });
     });
+    this.treeLayoutService.setDebug(true);
   }
 
   ngOnInit(): void {
@@ -249,6 +250,10 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
           processedChildren.add(relation.to.id);
         }
       }
+      // Для связей братьев/сестер - показываем все
+      else if (relation.type === 'brother' || relation.type === 'sister') {
+        filteredRelations.push(relation);
+      }
       // Для других типов связей - показываем все
       else {
         filteredRelations.push(relation);
@@ -323,6 +328,10 @@ export class FamilyTreeComponent implements OnInit, OnChanges, AfterViewInit, On
     else if (relation.type === 'son' || relation.type === 'daughter') {
       const controlOffset = Math.abs(toY - fromY) * 0.3;
       return `M ${fromX} ${fromY} Q ${fromX} ${fromY + controlOffset} ${toX} ${toY}`;
+    }
+    // Для связей братьев/сестер - прямая горизонтальная линия
+    else if (relation.type === 'brother' || relation.type === 'sister') {
+      return `M ${fromX} ${fromY} L ${toX} ${toY}`;
     }
     // Для других типов связей - прямая линия
     else {
